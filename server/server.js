@@ -1,117 +1,118 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
-const cors = require('cors'); // Import the cors package
-const dns = require('dns'); // Import dns for domain verification
-const axios = require('axios'); // Import axios for reachability check
+const cors = require('cors');
+const crypto = require('crypto');
+const http = require('http');
+const https = require('https');
 
 const app = express();
-app.use(cors()); // Use CORS middleware
-app.use(bodyParser.json());
-app.use(express.static(path.join(__dirname, '../public'))); // Serve static files from 'public' directory
 
-// In-memory store for demonstration
+// Middleware
+app.use(cors());
+app.use(bodyParser.json());
+app.use(express.static(path.join(__dirname, '../client/build')));
+
+// In-memory store for URL mappings
 const urlStore = new Map();
 
-// URL Validation Functions
-function isValidUrl(url) {
-  const pattern = new RegExp('^(https?:\\/\\/)?' + // protocol
-    '(([\\w\\d\\-\\.]+)\\.[a-z]{2,6}|[a-z0-9\\-]+\\.[a-z]{2,6})' + // domain name
-    '(\\:[0-9]{1,5})?' + // port
-    '(\\/.*)?$', 'i'); // path
-  return !!pattern.test(url);
-}
-
-function checkDomain(url, callback) {
-  const domain = new URL(url).hostname;
-  dns.resolve(domain, (err) => {
-    callback(!err);
-  });
-}
-
-async function checkUrl(url) {
+// URL Validation Function (simplified)
+const isValidUrl = (url) => {
   try {
-    const response = await axios.get(url);
-    return response.status === 200;
+    new URL(url); // This will throw an error if the URL is not valid
+    return true;
   } catch {
     return false;
   }
-}
+};
 
-async function validateWebsite(url) {
-  if (!isValidUrl(url)) return false;
 
+const checkUrl = (url) => {
   return new Promise((resolve) => {
-    checkDomain(url, async (exists) => {
-      if (exists) {
-        resolve(await checkUrl(url));
-      } else {
-        resolve(false);
+    const protocol = url.startsWith('https') ? https : http;
+    
+    // First, check the provided URL
+    protocol.get(url, (res) => {
+      if (res.statusCode !== 404 && res.statusCode !== 0) {
+        resolve(true);  // Return true if the status code is not 404 or 0
+      } else if (res.statusCode === 404) {
+        // If the status is 404, check the root domain
+        const rootUrl = new URL(url).origin;  // Extract root domain
+        
+        protocol.get(rootUrl, (rootRes) => {
+          resolve(rootRes.statusCode !== 404 && rootRes.statusCode !== 0);  // Return true if the root domain responds with a valid status
+        }).on('error', () => {
+          resolve(false);  // If the root domain check fails, return false
+        });
       }
+    }).on('error', () => {
+      resolve(false);  // If there's an error, return false
     });
   });
-}
+};
+
 
 // Ensure URL starts with http:// or https://
-function ensureHttpProtocol(url) {
-  if (!/^https?:\/\//i.test(url)) {
-    return `http://${url}`;
-  }
-  return url;
+const ensureHttpProtocol = (url) => {
+  return /^https?:\/\//i.test(url) ? url : `http://${url}`;
+};
+
+// Normalize URL
+function normalizeUrl(url) {
+  const cleanedUrl = url.replace(/^https?:\/\//, '');
+  return cleanedUrl.replace(/\/+$/, '');
 }
 
-function urlToBinaryString(url, length = 30) {
-  // Convert the URL to its binary representation
-  let binaryString = '';
-  for (let i = 0; i < url.length; i++) {
-    binaryString += url.charCodeAt(i).toString(2).padStart(8, '0');
-  }
-
-  // Trim or pad the binary string to the desired length
-  binaryString = binaryString.substring(0, length).padEnd(length, '0');
-
-  // Convert binary string to 0s and Os
-  return binaryString.replace(/0/g, '0').replace(/1/g, 'o');
+// Convert URL to binary-like string
+function urlToBinaryString(url) {
+  const cleanedUrl = normalizeUrl(url);
+  const hash = crypto.createHash('sha256').update(cleanedUrl).digest('hex');
+  return hash.split('').map(char => (parseInt(char, 16) % 2 === 0 ? '0' : 'o')).join('');
 }
 
 // Route to generate long URL
-app.post('/longen', async (req, res) => {
+app.post('/l0o0ng', async (req, res) => {
   let { url } = req.body;
   if (!url) {
     return res.status(400).json({ error: 'URL is required' });
   }
-
-  url = ensureHttpProtocol(url);  // Ensure protocol
+  
+  url = ensureHttpProtocol(url);
 
   try {
-    const isUrlValid = await validateWebsite(url);  // Validate the URL
+    const isUrlValid = isValidUrl(url);
     if (!isUrlValid) {
-      return res.status(400).json({ error: 'Invalid or unreachable URL' });
+      return res.status(400).json({ error: 'Invalid URL format' });
     }
 
-    const longUrlPath = urlToBinaryString(url);  // Generate a deterministic long URL path
-    const longUrl = `http://localhost:3001/longen/${longUrlPath}`;
-    console.log(url)
-    // Store the mapping
-    urlStore.set(longUrlPath, url);
+    const isReachable = await checkUrl(url);
+    if (!isReachable) {
+      return res.status(400).json({ error: 'URL is unreachable or invalid' });
+    }
 
-    console.log('Generated Long URL:', longUrl); // Log for debugging
+    const longUrlPath = urlToBinaryString(url);
+    const longUrl = `${req.protocol}://${req.get('host')}/l0o0ng/${longUrlPath}`;
+    urlStore.set(longUrlPath, [url, 0]);
 
+    console.log('Generated Long URL:', longUrl);
     res.json({ long_url: longUrl });
   } catch (error) {
-    console.error('Error generating long URL:', error); // Log errors
+    console.error('Error generating long URL:', error);
     res.status(500).json({ error: 'An error occurred while generating the long URL' });
   }
 });
 
 // Route to handle long URL requests and redirect
-app.get('/longen/:path', (req, res) => {
+app.get('/l0o0ng/:path', (req, res) => {
   const longUrlPath = req.params.path;
-  const originalUrl = urlStore.get(longUrlPath);
-  console.log(originalUrl);
+  const originalUrlData = urlStore.get(longUrlPath);
 
-  if (originalUrl) {
-    res.redirect(originalUrl);
+  if (originalUrlData) {
+    originalUrlData[1] += 1;
+    urlStore.set(longUrlPath, originalUrlData);
+
+    console.log(`Redirecting to: ${originalUrlData[0]} ,  Redirect count: ${originalUrlData[1]}`);
+    res.redirect(originalUrlData[0]);
   } else {
     res.status(404).send('Not Found');
   }
