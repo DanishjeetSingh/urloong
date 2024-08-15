@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Longener</title>
+</head>
+<body>
+    <h1>URL Longener</h1>
+    <form id="urlForm">
+        <input type="text" id="urlInput" placeholder="Enter a URL" required>
+        <input type="submit" value="Generate Long URL">
+    </form>
+    <div class="result" id="result"></div>
+
+    <script>
+        document.getElementById('urlForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const urlInput = document.getElementById('urlInput');
+            const resultDiv = document.getElementById('result');
+            const url = urlInput.value;
+
+            try {
+                const response = await fetch('/longen', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ url })
+                });
+
+                // Check for HTTP response status
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    resultDiv.innerHTML = `<p><strong>Error:</strong> ${errorData.error}</p>`;
+                    console.error('Server Error:', errorData);
+                    return;
+                }
+
+                // Ensure the response is not empty
+                const data = await response.json();
+                if (!data || !data.long_url) {
+                    throw new Error('Invalid JSON response');
+                }
+
+                resultDiv.innerHTML = `<p><strong>Long URL:</strong> <a href="${data.long_url}" target="_blank">${data.long_url}</a></p>`;
+            } catch (error) {
+                resultDiv.innerHTML = `<p><strong>Error:</strong> ${error.message}</p>`;
+                console.error('Fetch Error:', error);
+            }
+        });
+    </script>
+</body>
+</html>
