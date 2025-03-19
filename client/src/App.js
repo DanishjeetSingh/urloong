@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { ClipboardIcon, ClipboardCheckIcon } from '@heroicons/react/outline'; // Import both icons
 import './App.css';
+import { Analytics } from "@vercel/analytics/react"
+import { SpeedInsights } from "@vercel/speed-insights/react"
 
 function App() {
   const [urlInput, setUrlInput] = useState('');
@@ -104,6 +106,8 @@ function App() {
           )}
         </header>
       </div>
+      <Analytics />
+      <SpeedInsights />
     </div>
   );
 }
