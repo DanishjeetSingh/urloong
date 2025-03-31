@@ -1,26 +1,32 @@
 {
-    "version": 2,
-    "builds": [
-      {
-        "src": "l0o0ng/index.js",
-        "use": "@vercel/node"
-      },
-      {
-        "src": "client/package.json",
-        "use": "@vercel/static-build",
-        "config": {
-          "distDir": "build"
-        }
-      }
-    ],
-    "routes": [
-      {
-        "src": "/l0o0ng/(.*)",
-        "dest": "/l0o0ng/index.js"  
-      },
-      {
-        "src": "/(.*)",
-        "dest": "/client/$1"
-      }
-    ]
+  "version": 2,
+  "builds": [
+    {
+      "src": "l0o0ng/index.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "client/package.json",
+      "use": "@vercel/next"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/l0o0ng/(.*)",
+      "dest": "/l0o0ng/index.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/client/$1",
+      "continue": true
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(.*)",
+      "status": 404,
+      "dest": "/client/404"
+    }
+  ]
 }
