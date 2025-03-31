@@ -2,7 +2,7 @@
   "version": 2,
   "builds": [
     {
-      "src": "l0o0ng/index.js",
+      "src": "l0o0ng/api/index.js",
       "use": "@vercel/node"
     },
     {
@@ -12,8 +12,12 @@
   ],
   "routes": [
     {
+      "src": "/l0o0ng",
+      "dest": "/l0o0ng/api/index.js"
+    },
+    {
       "src": "/l0o0ng/(.*)",
-      "dest": "/l0o0ng/index.js"
+      "dest": "/l0o0ng/api/index.js"
     },
     {
       "src": "/(.*)",
