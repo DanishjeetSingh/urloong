@@ -37,28 +37,10 @@ export default function About() {
               <span>FUN</span>
             </Line>
             <Rule />
-            <p className="mb-1 font-bold">INGREDIENTS</p>
-            <Line>
-              <span>FRONTEND</span>
-              <span>NEXT.JS</span>
-            </Line>
-            <Line>
-              <span>BACKEND</span>
-              <span>NODE</span>
-            </Line>
-            <Line>
-              <span>DATABASE</span>
-              <span>NEON</span>
-            </Line>
-            <Line>
-              <span>HOSTING</span>
-              <span>VERCEL</span>
-            </Line>
-            <Rule />
             <p className="mb-1 font-bold">LIKE IT? FOUND A BUG?</p>
-            <p className="break-all">danishjeetsingh [at] gmail [dot] com</p>
+            <p className="break-all">singhdan [at] iu [dot] edu</p>
             <Rule />
-            <p className="mb-1 font-bold">MORE STORES</p>
+            <p className="mb-1 font-bold">MY MAIN SITE</p>
             <a href="https://singhdan.me" className="font-semibold text-[#1D1D22] underline">
               singhdan.me
             </a>

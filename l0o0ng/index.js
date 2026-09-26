@@ -109,7 +109,8 @@ app.get('/l0o0ng/:hash', async (req, res) => {
     `;
 
     if (!urlData) {
-      return res.status(404).json({ error: 'URL not found' });
+      // Unknown long link: send people to the site's 404 page
+      return res.redirect('/404');
     }
 
     // Redirect to the original URL
