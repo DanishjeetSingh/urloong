@@ -18,9 +18,32 @@ export const metadata = {
   title: "URL longener | urloong.singhdan.me",
   description: "Generate comically long URLs for your special website!",
   icons: {
-    icon: '/logo.svg',
+    icon: { url: "/icon.svg", type: "image/svg+xml" },
+    apple: "/apple-icon.png",
   },
   manifest: "/manifest.json",
+  // Link previews in iMessage, WhatsApp, Slack, Discord, X, etc.
+  openGraph: {
+    type: "website",
+    url: "/",
+    siteName: "urloong",
+    title: "urloong: comically loong URLs",
+    description: "Comically loong URLs for your special website. Printed while you wait.",
+    images: [
+      {
+        url: "/og.jpg",
+        width: 1200,
+        height: 630,
+        alt: "The urloong wordmark next to a receipt printing a 99-character URL",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "urloong: comically loong URLs",
+    description: "Comically loong URLs for your special website. Printed while you wait.",
+    images: ["/og.jpg"],
+  },
 };
 
 export const viewport = {

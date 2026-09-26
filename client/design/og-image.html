@@ -1,0 +1,90 @@
+<!doctype html>
+<!--
+  Source for public/og.jpg, the 1200x630 link preview. To regenerate, from client/:
+  "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless --hide-scrollbars \
+    --window-size=1200,630 --virtual-time-budget=8000 --screenshot=og.png design/og-image.html
+  sips -s format jpeg -s formatOptions 60 og.png --out public/og.jpg && rm og.png
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&family=Martian+Mono:wdth,wght@75..112.5,400..800&display=block">
+<style>
+  :root {
+    --blush: #F1D3CA; --ink: #17171B; --paper: #FBFBF7; --print: #26262B; --shade: #D6AA9E;
+    --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .08 0 0 0 0 .07 0 0 0 0 .09 2.4 0 0 0 -1'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+    --speck: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='s'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.55' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .97 0 0 0 0 .97 0 0 0 0 .95 4 0 0 0 -2.5'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23s)'/%3E%3C/svg%3E");
+  }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1200px; height: 630px; overflow: hidden; }
+  body {
+    position: relative;
+    background: var(--blush) url("../public/terrazzo.svg") 0 0 / 480px 480px;
+    color: var(--ink);
+    font-family: "Bricolage Grotesque", sans-serif;
+  }
+  body::after {
+    content: ""; position: absolute; inset: 0; z-index: 10;
+    background-image: var(--grain); opacity: .32; mix-blend-mode: multiply;
+  }
+
+  .pitch { position: absolute; left: 72px; top: 64px; width: 600px; display: grid; gap: 26px; }
+  .host { justify-self: start; background: var(--blush); padding: 4px 0; font: 500 19px/1 "Martian Mono", monospace; letter-spacing: .04em; text-transform: uppercase; }
+  .word { font-weight: 800; font-variation-settings: "wdth" 75, "opsz" 96; font-size: 228px; line-height: .8; letter-spacing: -.035em; margin-top: 18px; }
+  .tag { font-weight: 600; font-variation-settings: "opsz" 32; font-size: 40px; line-height: 1.2; max-width: 15em; }
+  .tag span { background: var(--ink); color: var(--blush); padding: 0 .2em; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
+
+  .printer { position: absolute; left: 738px; top: 58px; width: 412px; height: 44px; z-index: 2; background: #1C1C21; border-radius: 12px 12px 8px 8px; box-shadow: inset 0 -10px 0 #0B0B0D; }
+  .printer::after { content: ""; position: absolute; left: 18px; right: 18px; bottom: 7px; height: 4px; background: #000; border-radius: 2px; }
+  .printer i { position: absolute; right: 20px; top: 12px; width: 9px; height: 9px; border-radius: 50%; background: #3BD16F; }
+
+  .paper {
+    position: absolute; left: 752px; top: 94px; width: 384px; height: 560px;
+    padding: 26px 24px; background: var(--paper); color: var(--print);
+    font: 400 16px/1.55 "Martian Mono", monospace;
+    filter: drop-shadow(9px 9px 0 var(--shade));
+  }
+  .paper::before { content: ""; position: absolute; inset: 0; background-image: var(--speck); opacity: .75; }
+  .center { text-align: center; }
+  .logo { font-size: 34px; font-weight: 800; font-variation-settings: "wdth" 112.5; line-height: 1; letter-spacing: .02em; margin-bottom: 10px; color: #1D1D22; }
+  hr { border: 0; border-top: 2px dashed var(--print); margin: 13px 0; }
+  .line { display: flex; justify-content: space-between; gap: 12px; }
+  .total { font-size: 21px; font-weight: 800; }
+  .url { font-weight: 600; color: #1D1D22; word-break: break-all; font-size: 15.5px; }
+  .bar { margin-top: 16px; color: #1D1D22; }
+  .bar svg { display: block; width: 100%; height: 62px; }
+</style>
+</head>
+<body>
+  <div class="pitch">
+    <p class="host">urloong.singhdan.me</p>
+    <p class="word">urloong</p>
+    <p class="tag">Comically loong URLs for your special website. <span>Printed while you wait.</span></p>
+  </div>
+
+  <div class="printer"><i></i></div>
+  <div class="paper">
+    <div class="center">
+      <p class="logo">URLOONG</p>
+      <p>STORE #0o0 · OPEN 24/7</p>
+    </div>
+    <hr>
+    <div class="line"><span>LINK (wikipedia.org)</span><span>13 CH</span></div>
+    <div class="line"><span>LENGTHENING</span><span>+86 CH</span></div>
+    <hr>
+    <div class="line total"><span>TOTAL</span><span>99 CH</span></div>
+    <hr>
+    <p><b>YOUR LOONG URL</b></p>
+    <p class="url">https://urloong.singhdan.me/l0o0ng/o00oo0o00o0o0oo0ooo000o0o0o0ooo0ooo0ooo0ooo0000o0000ooo0o00ooooo</p>
+    <div class="bar" id="bar"></div>
+  </div>
+
+  <script>
+    // Thin bar for "0", thick bar for "o", same as the site's receipts
+    const hash = "o00oo0o00o0o0oo0ooo000o0o0o0ooo0ooo0ooo0ooo0000o0000ooo0o00ooooo";
+    let x = 6, bars = "";
+    for (const ch of hash) { const w = ch === "0" ? 1.4 : 3.2; bars += `<rect x="${x}" y="0" width="${w}" height="52"/>`; x += w + 1.6; }
+    document.getElementById("bar").innerHTML = `<svg viewBox="0 0 ${x + 6} 52" preserveAspectRatio="none" fill="currentColor">${bars}</svg>`;
+  </script>
+</body>
+</html>
