@@ -17,21 +17,15 @@ if (!process.env.DATABASE_URL) {
 // Neon's HTTP driver: one request per query, no connection pool to manage on Vercel
 const sql = neon(process.env.DATABASE_URL);
 
-// Updated URL Validation Function - More permissive
+// Accept anything that parses as a web address with a real-looking domain,
+// with or without http(s):// (e.g. "github.com/user", "www.site.com/a?b=1")
 const isValidUrl = (url) => {
-  // If it's already a valid URL with protocol, use the URL constructor
+  const withProtocol = url.startsWith('http://') || url.startsWith('https://') ? url : `http://${url}`;
   try {
-    const parsedUrl = new URL(url);
-    return true;
+    const { hostname } = new URL(withProtocol);
+    return /^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/.test(hostname);
   } catch {
-    // If not a complete URL, check if it could be a valid domain
-    // Basic domain regex - checks for something.tld format
-    const domainRegex = /^([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/;
-    
-    // Handle www. prefixes
-    const normalizedUrl = url.startsWith('www.') ? url.substring(4) : url;
-    
-    return domainRegex.test(normalizedUrl);
+    return false;
   }
 };
 
