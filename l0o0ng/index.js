@@ -20,7 +20,7 @@ const sql = neon(process.env.DATABASE_URL);
 // Accept anything that parses as a web address with a real-looking domain,
 // with or without http(s):// (e.g. "github.com/user", "www.site.com/a?b=1")
 const isValidUrl = (url) => {
-  const withProtocol = url.startsWith('http://') || url.startsWith('https://') ? url : `http://${url}`;
+  const withProtocol = url.startsWith('http://') || url.startsWith('https://') ? url : `https://${url}`;
   try {
     const { hostname } = new URL(withProtocol);
     return /^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/.test(hostname);
@@ -68,7 +68,7 @@ app.post('/l0o0ng', async (req, res) => {
   
   // Ensure URL has a protocol for redirection
   if (!url.startsWith('http://') && !url.startsWith('https://')) {
-    url = `http://${url}`;
+    url = `https://${url}`;
   }
   
   const longUrlPath = urlToBinaryString(url);
