@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const crypto = require('crypto');
-const { createClient } = require('@supabase/supabase-js');
+const { neon } = require('@neondatabase/serverless');
 
 require('dotenv').config({ path: './.env' })
 
@@ -10,10 +10,12 @@ app.use(cors());
 app.use(express.json());
 
 
-const supabaseUrl = 'https://fehwdeckthntsgdgdcmd.supabase.co'
-const supabaseKey = process.env.SUPABASE_ANON_KEY
+if (!process.env.DATABASE_URL) {
+  throw new Error('DATABASE_URL is not set. Add your Neon connection string to l0o0ng/.env');
+}
 
-const supabase = createClient(supabaseUrl, supabaseKey)
+// Neon's HTTP driver: one request per query, no connection pool to manage on Vercel
+const sql = neon(process.env.DATABASE_URL);
 
 // Updated URL Validation Function - More permissive
 const isValidUrl = (url) => {
@@ -79,27 +81,16 @@ app.post('/l0o0ng', async (req, res) => {
   const longUrl = `https://${req.get('host')}/l0o0ng/${longUrlPath}`;
   
   try {
-    // Check if this URL hash already exists
-    const { data: existingUrl } = await supabase
-      .from('url_mappings')
-      .select('*')
-      .eq('hash', longUrlPath)
-      .single();
-    
-    if (!existingUrl) {
-      // Insert new URL mapping
-      const { error } = await supabase
-        .from('url_mappings')
-        .insert([
-          { hash: longUrlPath, original_url: url, clicks: 0 }
-        ]);
-      
-      if (error) throw error;
-    }
-    
+    // Insert the mapping unless this hash already exists
+    await sql`
+      INSERT INTO url_mappings (hash, original_url, clicks)
+      VALUES (${longUrlPath}, ${url}, 0)
+      ON CONFLICT (hash) DO NOTHING
+    `;
+
     res.json({ url: longUrl });
   } catch (error) {
-    console.error('Error storing URL in Supabase:', error);
+    console.error('Error storing URL:', error);
     res.status(500).json({ error: 'Failed to store URL' });
   }
 });
@@ -109,27 +100,22 @@ app.get('/l0o0ng/:hash', async (req, res) => {
   const hash = req.params.hash;
   
   try {
-    // Get the URL data
-    const { data: urlData, error } = await supabase
-      .from('url_mappings')
-      .select('*')
-      .eq('hash', hash)
-      .single();
-    
-    if (error || !urlData) {
+    // Count the click and fetch the destination in one query
+    const [urlData] = await sql`
+      UPDATE url_mappings
+      SET clicks = clicks + 1
+      WHERE hash = ${hash}
+      RETURNING original_url
+    `;
+
+    if (!urlData) {
       return res.status(404).json({ error: 'URL not found' });
     }
-    
-    // Update click count
-    await supabase
-      .from('url_mappings')
-      .update({ clicks: urlData.clicks + 1 })
-      .eq('hash', hash);
-    
+
     // Redirect to the original URL
     res.redirect(urlData.original_url);
   } catch (error) {
-    console.error('Error retrieving URL from Supabase:', error);
+    console.error('Error retrieving URL:', error);
     res.status(500).json({ error: 'Failed to retrieve URL' });
   }
 });
@@ -139,22 +125,20 @@ app.get('/stats/:hash', async (req, res) => {
   const hash = req.params.hash;
   
   try {
-    const { data: urlData, error } = await supabase
-      .from('url_mappings')
-      .select('*')
-      .eq('hash', hash)
-      .single();
-    
-    if (error || !urlData) {
+    const [urlData] = await sql`
+      SELECT original_url, clicks FROM url_mappings WHERE hash = ${hash}
+    `;
+
+    if (!urlData) {
       return res.status(404).json({ error: 'URL not found' });
     }
-    
-    res.json({ 
+
+    res.json({
       originalUrl: urlData.original_url,
       clicks: urlData.clicks
     });
   } catch (error) {
-    console.error('Error retrieving URL stats from Supabase:', error);
+    console.error('Error retrieving URL stats:', error);
     res.status(500).json({ error: 'Failed to retrieve URL statistics' });
   }
 });
