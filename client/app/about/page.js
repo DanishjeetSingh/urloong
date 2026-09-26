@@ -1,31 +1,76 @@
-import Link from "next/link";
+import StoreLayout, { StoreLeft, StoreRight } from "../../components/StoreLayout";
+import { Line, Paper, Printer, Rule, StoreHeader } from "../../components/Receipt";
+
+export const metadata = {
+  title: "About | urloong.singhdan.me",
+};
 
 export default function About() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-r from-rose-400 to-red-500 min-w-full px-3">
-      <div className="bg-white/45 max-w-lg p-5 rounded-xl text-center text-lg font-semibold backdrop-contrast-300">
-        <p>
-          The internet has way too many URL shorteners—so I made a URL longener instead.
-          This website generates ridiculously long URLs, just for fun.
+    <StoreLayout nav={{ href: "/", label: "Back to store" }}>
+      <StoreLeft>
+        <h1 className="wordmark">about</h1>
+        <p className="tagline">
+          The internet has way too many URL shorteners, so I made a URL longener instead.{" "}
+          <span className="tagline-mark">Just for fun.</span>
         </p>
-        <p className="mt-4">
-          On the tech side, it's a full-stack web app hosted on Vercel,
-          built with Next.js (frontend), Node (backend), and Supabase (database).
-        </p>
-        <p className="mt-4">
-          Like what you see? Found a bug? Hit me up at <br />
-          <span className="text-indigo-800 hover:text-indigo-600">danishjeetsingh [at] gmail [dot] com</span>
-        </p>
-        <p className="mt-2">
-          Check out more of my projects at <br />
-          <a href="https://singhdan.me" className="text-indigo-800 hover:text-indigo-600">
-            singhdan.me
-          </a>
-        </p>
-      </div>
-      <Link href="/" className="text-black font-bold mt-4 text-xl">
-        go back.
-      </Link>
-    </div>
+      </StoreLeft>
+
+      <StoreRight>
+        <Printer />
+        <div className="feed">
+          <Paper>
+            <StoreHeader />
+            <Rule />
+            <p className="text-center text-[14.5px] font-extrabold">STORE POLICY</p>
+            <Rule />
+            <Line>
+              <span>URL SHORTENERS</span>
+              <span>TOO MANY</span>
+            </Line>
+            <Line>
+              <span>URL LONGENERS</span>
+              <span>1</span>
+            </Line>
+            <Line>
+              <span>PURPOSE</span>
+              <span>FUN</span>
+            </Line>
+            <Rule />
+            <p className="mb-1 font-bold">INGREDIENTS</p>
+            <Line>
+              <span>FRONTEND</span>
+              <span>NEXT.JS</span>
+            </Line>
+            <Line>
+              <span>BACKEND</span>
+              <span>NODE</span>
+            </Line>
+            <Line>
+              <span>DATABASE</span>
+              <span>NEON</span>
+            </Line>
+            <Line>
+              <span>HOSTING</span>
+              <span>VERCEL</span>
+            </Line>
+            <Rule />
+            <p className="mb-1 font-bold">LIKE IT? FOUND A BUG?</p>
+            <p className="break-all">danishjeetsingh [at] gmail [dot] com</p>
+            <Rule />
+            <p className="mb-1 font-bold">MORE STORES</p>
+            <a href="https://singhdan.me" className="font-semibold text-[#1D1D22] underline">
+              singhdan.me
+            </a>
+            <Rule />
+            <p className="text-center font-bold">
+              THANK YOU FOR READING
+              <br />
+              THE FINE PRINT
+            </p>
+          </Paper>
+        </div>
+      </StoreRight>
+    </StoreLayout>
   );
 }

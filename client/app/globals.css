@@ -1,26 +1,265 @@
 @import "tailwindcss";
 
-/* :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-blush: #F1D3CA;
+  --color-cobalt: #2446D8;
+  --color-cobalt-deep: #1733B0;
+  --color-paper: #FBFBF7;
+  --color-ink: #17171B;
+  --color-print: #26262B;
+  --color-shade: #D6AA9E;
+  --color-void: #C8261E;
+  --font-sans: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-martian), ui-monospace, Menlo, monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+:root {
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .08 0 0 0 0 .07 0 0 0 0 .09 2.4 0 0 0 -1'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+  /* White dropouts over the receipt, like faded thermal print */
+  --speck: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='s'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.55' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .97 0 0 0 0 .97 0 0 0 0 .95 4 0 0 0 -2.5'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23s)'/%3E%3C/svg%3E");
+  /* Uneven ink for the rubber stamp */
+  --stamp: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='m'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -4 0 0 0 3.2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23m)'/%3E%3C/svg%3E");
+}
+
+@layer base {
+  body {
+    background: var(--color-blush) url("/terrazzo.svg") repeat;
+    background-size: 480px 480px;
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+  }
+
+  /* Print grain over the whole page */
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image: var(--grain);
+    opacity: 0.3;
+    mix-blend-mode: multiply;
+    pointer-events: none;
+    z-index: 50;
+  }
+
+  ::selection {
+    background: var(--color-ink);
+    color: var(--color-blush);
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--color-cobalt);
+    outline-offset: 3px;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
-} */
+@layer components {
+  .wordmark {
+    font-weight: 800;
+    font-variation-settings: "wdth" 75, "opsz" 96;
+    line-height: 0.8;
+    letter-spacing: -0.035em;
+    font-size: clamp(84px, 34vw, 260px);
+  }
+
+  /* Two columns from lg up, so the wordmark shares the width with the receipt */
+  @media (min-width: 64rem) {
+    .wordmark {
+      font-size: min(22vw, 260px);
+    }
+  }
+
+  .tagline {
+    max-width: 24ch;
+    font-weight: 600;
+    font-variation-settings: "opsz" 24;
+    font-size: clamp(18px, 2.2vw, 24px);
+    line-height: 1.22;
+    text-wrap: balance;
+  }
+
+  .tagline-mark {
+    background: var(--color-ink);
+    color: var(--color-blush);
+    padding: 0 0.22em;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+  }
+
+  .printer {
+    position: relative;
+    z-index: 2;
+    height: 34px;
+    margin: 0 -8px;
+    background: #1C1C21;
+    border-radius: 10px 10px 6px 6px;
+    box-shadow: inset 0 -8px 0 #0B0B0D;
+  }
+
+  .printer::after {
+    content: "";
+    position: absolute;
+    left: 14px;
+    right: 14px;
+    bottom: 5px;
+    height: 3px;
+    background: #000;
+    border-radius: 2px;
+  }
+
+  .printer-led {
+    position: absolute;
+    right: 16px;
+    top: 9px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #3BD16F;
+  }
+
+  .printer-led.is-busy {
+    background: #F2B233;
+    animation: led-blink 0.5s steps(2) infinite;
+  }
+
+  .feed {
+    overflow: hidden;
+    margin-top: -6px;
+    padding: 0 10px 18px 0;
+  }
+
+  .paper {
+    position: relative;
+    padding: 22px 18px;
+    background-color: var(--color-paper);
+    /* Two faint creases */
+    background-image:
+      linear-gradient(171deg, transparent 43.8%, rgba(0, 0, 0, 0.05) 44%, transparent 44.2%),
+      linear-gradient(186deg, transparent 71.9%, rgba(0, 0, 0, 0.045) 72%, transparent 72.1%);
+    color: var(--color-print);
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    line-height: 1.55;
+    filter: drop-shadow(7px 7px 0 var(--color-shade));
+  }
+
+  .paper::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: var(--speck);
+    opacity: 0.75;
+    pointer-events: none;
+  }
+
+  /* Zigzag tear-off edge */
+  .paper::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -9px;
+    height: 9px;
+    background:
+      linear-gradient(135deg, var(--color-paper) 50%, transparent 50%) 0 0 / 12px 9px repeat-x,
+      linear-gradient(-135deg, var(--color-paper) 50%, transparent 50%) 0 0 / 12px 9px repeat-x;
+  }
+
+  .paper-print {
+    animation: paper-feed 1.5s steps(30) both;
+  }
+
+  .receipt-logo {
+    margin-bottom: 8px;
+    color: #1D1D22;
+    font-size: 25px;
+    font-weight: 800;
+    font-variation-settings: "wdth" 112.5;
+    line-height: 1;
+    letter-spacing: 0.02em;
+  }
+
+  .receipt-rule {
+    margin: 11px 0;
+    border: 0;
+    border-top: 1.5px dashed var(--color-print);
+  }
+
+  .receipt-line {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .receipt-line > :first-child {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .receipt-line > :last-child {
+    flex: none;
+  }
+
+  .receipt-btn {
+    padding: 10px 12px;
+    border: 1.5px solid #1D1D22;
+    color: #1D1D22;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+
+  .coupon {
+    margin-top: 9px;
+    padding: 9px 10px;
+    border: 1.5px dashed var(--color-print);
+    text-align: center;
+    text-transform: uppercase;
+  }
+
+  .coupon b {
+    display: block;
+    font-size: 15px;
+    font-weight: 800;
+    font-variation-settings: "wdth" 112.5;
+  }
+
+  .void-stamp {
+    position: absolute;
+    top: 46%;
+    left: 50%;
+    padding: 8px 18px 4px;
+    border: 5px solid currentColor;
+    color: var(--color-void);
+    font-family: var(--font-sans);
+    font-size: 54px;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: 0.08em;
+    transform: translate(-50%, -50%) rotate(-14deg);
+    mix-blend-mode: multiply;
+    -webkit-mask-image: var(--stamp);
+    mask-image: var(--stamp);
+    pointer-events: none;
+  }
+}
+
+@keyframes paper-feed {
+  from { transform: translateY(-100%); }
+  to { transform: none; }
+}
+
+@keyframes led-blink {
+  to { visibility: hidden; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .paper-print,
+  .printer-led.is-busy {
+    animation: none;
+  }
+}
