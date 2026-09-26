@@ -1,25 +1,19 @@
 {
   "name": "urloong",
   "version": "1.0.0",
-  "description": "A Node.js and React URL longener with SQL-based collision prevention.",
-  "main": "server.js",
+  "description": "Backend for urloong: turns links into long 0/o URLs and redirects them.",
+  "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "test": "nodemon index.js",
+    "dev": "nodemon index.js",
     "db:setup": "node scripts/setup-db.js"
   },
-  "keywords": [],
-  "author": "",
   "license": "ISC",
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",
-    "axios": "^1.7.4",
-    "body-parser": "^1.20.2",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
-    "express": "^4.19.2",
-    "node-fetch": "^3.3.2",
-    "uuid": "^10.0.0"
+    "express": "^4.19.2"
   },
   "devDependencies": {
     "nodemon": "^3.1.4"

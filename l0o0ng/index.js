@@ -29,7 +29,7 @@ const isValidUrl = (url) => {
   }
 };
 
-// Updated normalize function to handle URLs without protocols
+// Reduce a URL to host + path + query so http/https and trailing slashes hash the same
 function normalizeUrl(url) {
   // First try to parse as full URL
   try {
@@ -48,7 +48,7 @@ function normalizeUrl(url) {
   }
 }
 
-// Convert URL to binary-like string
+// Hash the normalized URL into a 64-character string of 0s and o's
 function urlToBinaryString(url) {
   const cleanedUrl = normalizeUrl(url);
   const hash = crypto.createHash('sha256').update(cleanedUrl).digest('hex');
@@ -138,7 +138,7 @@ app.get('/stats/:hash', async (req, res) => {
   }
 });
 
-// Important for Vercel deployment
+// Listen locally; on Vercel the app is exported to api/index.js instead
 if (process.env.NODE_ENV !== 'production') {
   app.listen(3001, () => {
     console.log('Server running on http://localhost:3001');
